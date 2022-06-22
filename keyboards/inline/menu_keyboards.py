@@ -95,7 +95,8 @@ async def items_keyboard(subcategory):
     # Ost-kategorioyaga tegishli barcha mahsulotlarni olamiz
     items = db.get_products(subcategory)
     # print(db.get_subcategories(subcategory)[0]['category'])
-    category_id = db.get_subcategories(subcategory)[0]['category']
+    category_id = db.get_subcategory(subcategory)['category']
+    # print(f"{category_id}")
     for item in items:
         # Tugma matnini yasaymiz
         button_text = f"{item['title']} - {item['price']} so'm"

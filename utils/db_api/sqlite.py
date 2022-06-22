@@ -28,17 +28,6 @@ class Database:
         connection.close()
         return data
 
-#     def create_table_users(self):
-#         sql = """
-#         CREATE TABLE Users (
-#             id int NOT NULL,
-#             full_name varchar(255) NOT NULL,
-#             username varchar(255),
-#             telegram_id varchar(3),
-#             PRIMARY KEY (id)
-#             );
-#           """
-#         self.execute(sql, commit=True)
 
     @staticmethod
     def format_args(sql, parameters: dict):
@@ -161,9 +150,6 @@ class Database:
         'quantity': quantity,
         }
         r = requests.post(url = f"{URL}orderproduct", data = data)
-        # Response textni chop etish
-        # sql = "INSERT INTO order(user_id, phone_number, name, total) VALUES(?, ?, ?, ?)"
-        # self.execute(sql, parameters=(user_id, name, total), commit=True)
 
 
     def get_cart(self, user_id):

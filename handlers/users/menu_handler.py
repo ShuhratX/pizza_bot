@@ -69,7 +69,7 @@ async def show_item(callback: CallbackQuery, item_id, **kwargs):
         text = f"<a href=\"{item['image']}\">{item['title']}</a>\n\n"
     else:
         text = f"{item['title']}\n\n"
-    text += f"Narxi: {item['price']}so'm\n{item['structure']}"
+    text += f"Narxi: {item['price']}so'm"
 
     await callback.message.edit_text(text=text, reply_markup=markup)
 
@@ -87,9 +87,9 @@ async def add_cart(callback: CallbackQuery):
     price = db.get_product(item_id)['price']
     title = db.get_product(item_id)['title']
     total = int(count) * price
-    id =  (db.get_user(user_id)['id'])
+    id =  (db.get_user(user_id)['user_id'])
     db.add_to_cart(id, item_id, count)
-    await callback.message.answer(text = f"{count} dona {title} savatchaga qo'shildi", reply_markup = menu)
+    await callback.message.answer(text = f"{count} dona <b>{title}</b> savatchaga qo'shildi", reply_markup = menu)
 
 
 @dp.message_handler(text="Savatcha")
@@ -99,13 +99,11 @@ async def show_cart(message: types.Message):
     cart_items = db.get_cart(user.id)
     price = 0
     msg = ""
-    # order_id = (db.get_order(message.from_user.id))['order_id']
-    # print(order_id)
     
     for item in cart_items:
         product = db.get_product(item['product'])
-        nom = db.get_subcategory(product['subcategory'])
-        msg += f"<b>{nom['title']} {product['title']}</b>: {item['count']} ta, Narxi: {item['price']} so'm\n"
+        # nom = db.get_subcategory(product['subcategory'])
+        msg += f"<b>{product['title']}</b>: {item['count']} ta, Narxi: {item['price']} so'm\n"
         price += int(item['price'])
     if price > 0:
         await message.answer(f"{msg}\n<b>Umumiy: {price}</b>", reply_markup=markup)
@@ -130,6 +128,12 @@ async def buy_it(callback: CallbackQuery, **kwargs):
 async def get_contact(call: CallbackQuery, **kwargs):
     user_id = call.from_user.id
     await call.message.answer(text = "Manzilingizni jo'nating", reply_markup=location)
+
+
+@dp.callback_query_handler(text_contains="by_cart")
+async def get_contact(call: CallbackQuery, **kwargs):
+    user_id = call.from_user.id
+    await call.answer(text = "To'lov tizimi ulanmagan", show_alert = True)
 
 
 @dp.message_handler(content_types='location')
@@ -165,9 +169,9 @@ async def success(message: Message):
         for item in cart_items:
             product = db.get_product(item['product'])
             nom = db.get_subcategory(product['subcategory'])
-            msg += f"<b>{nom['title']} {product['title']}</b>: {item['count']} ta, Narxi: {item['price']} so'm\n"
+            msg += f"<b>{nom['title']} {product['title']}</b>: {item['count']} ta,\nNarxi: {item['price']} so'm\n"
             price += int(item['price'])
-        await bot.send_message(chat_id=ADMINS[0], text=f"Yangi buyurtma:\nRaqam: +{number}\nMijoz: {client}\n{msg}\n<b>Umumiy: {price}</b>")
+        await bot.send_message(chat_id=ADMINS[0], text=f"Yangi buyurtma:\nRaqam: {number}\nMijoz: {client}\n{msg}\n<b>Umumiy: {price}</b>")
         #ORDER CREATE YOZISH KERAK
         id =  (db.get_user(user_id)['user_id'])
         db.create_order(id, number, client, price)
@@ -175,7 +179,7 @@ async def success(message: Message):
         for item in cart_items:
             product = db.get_product(item['product'])
             db.create_orderproduct(order_id, product['id'], item['count'])
-            print(product['id'])
+            # print(product['id'])
         await message.answer(text = "Buyurtma qabul qilindi.\nTez orada sizga aloqaga chiqamiz😊", reply_markup = menu)
         db.clear_cart(user_id)
     else:
